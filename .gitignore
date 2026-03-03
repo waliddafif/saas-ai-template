@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-node/
+out/
+*.tsbuildinfo
+
+# Compiled binaries
+apps/api/server
+apps/worker/worker
+
+# Static files (built from apps/web)
+apps/api/public/*
+!apps/api/public/.gitkeep
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Bun
+bun.lockb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

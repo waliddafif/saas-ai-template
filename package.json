@@ -1,0 +1,30 @@
+{
+  "name": "saas-ai-template",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --filter './apps/*' dev",
+    "dev:api": "bun --hot apps/api/src/index.ts",
+    "dev:web": "cd apps/web && bun run dev",
+    "dev:worker": "bun --watch apps/worker/src/index.ts",
+    "build": "bun run --filter @saas-ai-template/web build && cp -r apps/web/dist/* apps/api/public/",
+    "build:api": "cd apps/api && bun build --compile --target=bun src/index.ts --outfile=server",
+    "build:worker": "cd apps/worker && bun build --compile --target=bun src/index.ts --outfile=worker",
+    "typecheck": "bun run --filter '*' typecheck",
+    "db:generate": "cd packages/shared && bunx drizzle-kit generate",
+    "db:migrate": "cd packages/shared && bunx drizzle-kit migrate",
+    "db:seed": "bun run packages/shared/src/db/seed.ts",
+    "db:deploy": "bun run scripts/migrate.ts",
+    "start": "bun run apps/api/src/migrate.ts && bun run apps/api/src/index.ts",
+    "start:worker": "bun run apps/worker/src/index.ts"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.48",
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.8"
+  },
+  "overrides": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0"
+  }
+}
