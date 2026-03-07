@@ -73,7 +73,7 @@ async function failJob(job: Job, error: string) {
     `);
   } else {
     await db.execute(sql`
-      UPDATE jobs SET status = 'pending', error = ${error}, visible_at = NOW() + INTERVAL '5 minutes'
+      UPDATE jobs SET status = 'pending', error = ${error}, visible_at = NOW() + (${Math.pow(2, job.attempts) * 60} || ' seconds')::interval
       WHERE id = ${job.id}
     `);
   }
