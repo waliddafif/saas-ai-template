@@ -1,6 +1,9 @@
+import { initSentry } from "./lib/sentry";
 import { Cron } from "croner";
 import { startPolling, registerHandler } from "./queue";
 import { wrapCron } from "./lib/cron-wrapper";
+
+initSentry();
 
 // Handlers
 import { healthCheck } from "./handlers/health-check";

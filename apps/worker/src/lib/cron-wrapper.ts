@@ -1,3 +1,5 @@
+import { Sentry } from "./sentry";
+
 /**
  * Wrap a cron handler with timing, logging, and error capture.
  * Returns a sync function suitable for croner's callback.
@@ -13,6 +15,12 @@ export function wrapCron(name: string, handler: () => Promise<void>): () => void
       })
       .catch((error) => {
         console.error(`[cron] ${name} failed:`, error);
+        // Report to Sentry if initialized
+        try {
+          Sentry.captureException(error);
+        } catch {
+          // Sentry not initialized — ignore
+        }
       });
   };
 }

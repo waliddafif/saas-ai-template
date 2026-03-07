@@ -12,6 +12,7 @@
     "@saas-ai-template/shared": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "postgres": "^3.4.5",
+    "@sentry/bun": "^10.42.0",
     "croner": "^9.0.0"
   },
   "devDependencies": {

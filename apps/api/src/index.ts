@@ -1,9 +1,12 @@
+import { initSentry } from "./lib/sentry";
 import { Elysia } from "elysia";
 import { staticPlugin } from "@elysiajs/static";
 import { chatRoute } from "./routes/chat";
 import { sseRoute } from "./routes/sse";
 import { auth } from "./lib/auth";
 import { resolve } from "path";
+
+initSentry();
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = resolve(import.meta.dir, "../public");
