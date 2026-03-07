@@ -1,78 +1,115 @@
 # SaaS AI Template
 
-Starter template pour applications SaaS avec assistant IA intégré. Stack TypeScript full-stack avec Bun, Elysia, React, et Vercel AI SDK.
+Production-ready starter template for SaaS applications with a built-in AI assistant. Full-stack TypeScript monorepo with Bun, Elysia, React, and Vercel AI SDK.
 
-## Stack technique
+## Stack
 
-- **Runtime** : Bun
-- **API** : Elysia (framework Bun-natif)
-- **Frontend** : React 19 + Vite + Tailwind CSS v4
-- **UI** : shadcn/ui + assistant-ui (chat)
-- **Base de données** : PostgreSQL + Drizzle ORM + pgvector
-- **Auth** : Better Auth (email/password)
-- **IA** : Vercel AI SDK v6 (OpenAI + fallback Anthropic)
-- **Worker** : Job queue PostgreSQL SKIP LOCKED + croner
+| Layer | Tech |
+|-------|------|
+| Runtime | Bun |
+| API | Elysia (Bun-native) |
+| Frontend | React 19 + Vite + Tailwind CSS v4 |
+| UI | shadcn/ui (24 components) + assistant-ui (chat) |
+| Data fetching | TanStack Query + TanStack Table + TanStack Virtual |
+| Database | PostgreSQL + Drizzle ORM + pgvector |
+| Auth | Better Auth (email/password) + RBAC (4 roles, 8 permissions) |
+| AI | Vercel AI SDK v6 (OpenAI + fallback Anthropic) |
+| Observability | Sentry (API + Worker) + Langfuse (AI tracing) |
+| Email | Brevo (Sendinblue) |
+| Worker | Job queue (PostgreSQL SKIP LOCKED) + croner |
+
+## Features
+
+- **AI chat** with streaming (SSE), tool calling, and assistant-ui components
+- **RBAC** with 4 roles (owner/admin/member/viewer) and 8 generic permissions
+- **Audit log** with automatic IP/user-agent tracking
+- **Event bus** via PostgreSQL NOTIFY/LISTEN with SSE `subscribe()` for real-time updates
+- **Rate limiting** — 100 req/min global, 5 req/min on auth routes, proper `429` + `Retry-After` headers
+- **Worker** with exponential backoff, health-check, dead letter detection, and old job cleanup
+- **Theme** support (light/dark/system) with localStorage persistence
+- **Demo mode** banner with Zustand store
+- **Lazy loading** all pages with `React.lazy()` + Suspense
+- **Vite chunking** — manual splits for react, tanstack, radix, ai vendors
+- **Error boundary** with fallback UI
+- **Graceful degradation** — Sentry, Langfuse, Brevo all work without config (warning log + skip)
 
 ## Quick Start
 
 ```bash
-# 1. Cloner et installer
-git clone <repo-url> my-saas-app
+# 1. Clone and install
+git clone https://github.com/waliddafif/saas-ai-template.git my-saas-app
 cd my-saas-app
 bun install
 
-# 2. Configurer l'environnement
+# 2. Configure environment
 cp .env.example .env
-# Remplir DATABASE_URL, BETTER_AUTH_SECRET, OPENAI_API_KEY
+# Fill in DATABASE_URL, BETTER_AUTH_SECRET, OPENAI_API_KEY
 
-# 3. Créer la base et migrer
+# 3. Create database and migrate
 bun run db:migrate
 
-# 4. Lancer en développement
-bun run dev:api     # Terminal 1 — API sur :3000
-bun run dev:web     # Terminal 2 — Vite sur :5173
+# 4. Start development
+bun run dev:api     # Terminal 1 — API on :3000
+bun run dev:web     # Terminal 2 — Vite on :5173
 bun run dev:worker  # Terminal 3 — Worker
 ```
 
 ## Structure
 
 ```
-├── packages/shared/     # Schema DB, outils IA, types partagés
-├── apps/api/            # API Elysia (auth, chat, SSE, static)
-├── apps/web/            # SPA React (pages, composants, assistant-ui)
-├── apps/worker/         # Job queue + crons
-├── drizzle/migrations/  # Migrations SQL générées
-└── scripts/             # Scripts CI
+├── packages/shared/     # DB schema, AI tools, types, permissions
+├── apps/api/            # Elysia API (auth, chat, SSE, rate limiting, audit)
+├── apps/web/            # React SPA (pages, 24 shadcn components, assistant-ui)
+├── apps/worker/         # Job queue + crons (health-check, cleanup, dead letters)
+├── drizzle/migrations/  # Generated SQL migrations
+└── scripts/             # CI scripts
 ```
 
-## À personnaliser
+## Customize
 
-| Quoi | Où |
-|------|-----|
-| Schema DB | `packages/shared/src/db/schema.ts` |
-| Outils IA (UI tools) | `packages/shared/src/tools/index.ts` |
+| What | Where |
+|------|-------|
+| DB schema | `packages/shared/src/db/schema.ts` |
+| Roles & permissions | `packages/shared/src/permissions.ts` |
+| AI tools (UI tools) | `packages/shared/src/tools/index.ts` |
 | System prompt | `apps/api/src/routes/chat.ts` |
+| Rate limits | `apps/api/src/lib/rate-limit.ts` |
+| Email templates | `apps/api/src/lib/email.ts` |
 | Sidebar / navigation | `apps/web/src/components/AppLayout.tsx` |
 | Pages | `apps/web/src/pages/` |
+| Theme config | `apps/web/src/lib/themeStore.ts` |
 | Job handlers | `apps/worker/src/index.ts` |
 | Cron jobs | `apps/worker/src/index.ts` |
 | Branding | `apps/web/index.html` + `AppLayout.tsx` |
 
-## Build production
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Yes | Auth session secret |
+| `OPENAI_API_KEY` | Yes | Primary LLM provider |
+| `ANTHROPIC_API_KEY` | No | Fallback LLM provider |
+| `BREVO_API_KEY` | No | Email sending (logs to console if missing) |
+| `SENTRY_DSN` | No | Error tracking (disabled if missing) |
+| `LANGFUSE_PUBLIC_KEY` | No | AI tracing (disabled if missing) |
+| `LANGFUSE_SECRET_KEY` | No | AI tracing (disabled if missing) |
+
+## Production Build
 
 ```bash
-bun run build           # Build web → copie dans api/public
-bun run build:api       # Compile API en binaire standalone
-bun run build:worker    # Compile Worker en binaire standalone
+bun run build           # Build web → copy to api/public
+bun run build:api       # Compile API to standalone binary
+bun run build:worker    # Compile Worker to standalone binary
 ```
 
-## Déploiement
+## Deploy
 
 ```bash
-# Migrer la DB
+# Migrate the database
 bun run db:deploy
 
-# Ou via le script start (migre puis lance)
+# Or use the start script (migrates then launches)
 bun run start          # API
 bun run start:worker   # Worker
 ```
