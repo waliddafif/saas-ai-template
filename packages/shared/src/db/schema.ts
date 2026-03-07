@@ -142,6 +142,37 @@ export const agentMemories = pgTable("agent_memories", {
     .defaultNow(),
 });
 
+// ─── Audit Logs ──────────────────────────────────────────────────────────────
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    /** Verb describing what happened, e.g. "CREATE", "UPDATE", "DELETE". */
+    action: varchar("action", { length: 100 }).notNull(),
+    /** The type of resource affected, e.g. "conversation", "message". */
+    resourceType: varchar("resource_type", { length: 100 }).notNull(),
+    /** The ID of the resource affected. */
+    resourceId: varchar("resource_id", { length: 255 }).notNull(),
+    /** Key/value diff or snapshot relevant to the action. */
+    changes: jsonb("changes"),
+    /** Client IP address (IPv4 or IPv6, max 45 chars). */
+    ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("audit_logs_user_created_idx").on(table.userId, table.createdAt),
+    index("audit_logs_resource_idx").on(table.resourceType, table.resourceId),
+    index("audit_logs_action_idx").on(table.action),
+  ]
+);
+
 // ─── Job Queue ───────────────────────────────────────────────────────────────
 
 export const jobs = pgTable(
