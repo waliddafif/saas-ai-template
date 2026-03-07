@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./db/schema": "./src/db/schema.ts",
+    "./permissions": "./src/permissions.ts",
     "./tools": "./src/tools/index.ts",
     "./types": "./src/types/index.ts"
   },
