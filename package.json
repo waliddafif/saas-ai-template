@@ -19,8 +19,8 @@
     "start:worker": "bun run apps/worker/src/index.ts"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.48",
-    "drizzle-orm": "^0.45.1",
+    "@sinclair/typebox": "^0.34.49",
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.8"
   },
   "overrides": {
